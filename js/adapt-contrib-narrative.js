@@ -181,6 +181,8 @@ define([
         },
 
         replaceWithHotgraphic: function() {
+            if (this._isRemoved) return;
+            
             if (!Adapt.componentStore.hotgraphic) throw "Hotgraphic not included in build";
             var Hotgraphic = Adapt.componentStore.hotgraphic;
             
