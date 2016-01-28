@@ -18,7 +18,7 @@ define([
             // If reset is enabled set defaults
             if (isResetOnRevisit) {
                 this.model.reset(isResetOnRevisit);
-                this.view.set("_stage", 0);
+                this.state.set("_stage", 0);
 
                 _.each(this.model.get('_items'), function(item) {
                     item.visited = false;
@@ -28,23 +28,23 @@ define([
 
         setDeviceSize: function() {
             if (Adapt.device.screenSize === 'large') {
-                this.view.set("_isDesktop", true);
+                this.state.set("_isDesktop", true);
             } else {
-                this.view.set("_isDesktop", false);
+                this.state.set("_isDesktop", false);
             }
         },
 
         setMarginDirection: function() {
             if (Adapt.config.get('_defaultDirection') == 'rtl') {
-                this.view.set("_marginDir", 'right');
+                this.state.set("_marginDir", 'right');
             } else {
-                this.view.set("_marginDir", 'left');
+                this.state.set("_marginDir", 'left');
             }
         },
 
         setupViewState: function() {
-            this.view.set("_itemCount", this.model.get('_items').length);
-            this.view.set("_active", true);
+            this.state.set("_itemCount", this.model.get('_items').length);
+            this.state.set("_active", true);
         },
 
         postRender: function() {
@@ -68,17 +68,17 @@ define([
         },
 
         setInitialStage: function() {
-            if (this.view.get("_stage")) {
-                this.setStage(this.view.get("_stage"), true);
+            if (this.state.get("_stage")) {
+                this.setStage(this.state.get("_stage"), true);
             } else {
                 this.setStage(0, true);
             }
         },
 
         setStage: function(stage, initial) {
-            this.view.set("_stage", stage);
+            this.state.set("_stage", stage);
 
-            if (this.view.get("_isDesktop")) {
+            if (this.state.get("_isDesktop")) {
                 // Set the visited attribute for large screen devices
                 var currentItem = this.getCurrentItem(stage);
                 currentItem.visited = true;
@@ -90,7 +90,7 @@ define([
             this.moveSliderToIndex(stage, !initial);
 
             this.once("rendered", _.bind(function() {
-                if (this.view.get("_isDesktop")) {
+                if (this.state.get("_isDesktop")) {
                     if (!initial) this.$('.narrative-content-item').eq(stage).a11y_focus();
                 } else {
                     if (!initial) this.$('.narrative-popup-open').a11y_focus();
@@ -116,19 +116,19 @@ define([
         },
 
         evaluateNavigation: function() {
-            var currentStage = this.view.get("_stage");
-            var itemCount = this.view.get("_itemCount");
+            var currentStage = this.state.get("_stage");
+            var itemCount = this.state.get("_itemCount");
             if (currentStage == 0) {
-                this.view.set("_showLeft", false);
+                this.state.set("_showLeft", false);
                 if (itemCount > 1) {
-                    this.view.set("_showRight", true);
+                    this.state.set("_showRight", true);
                 }
             } else {
-                this.view.set("_showLeft", true);
+                this.state.set("_showLeft", true);
                 if (currentStage == itemCount - 1) {
-                    this.view.set("_showRight", false);
+                    this.state.set("_showRight", false);
                 } else {
-                    this.view.set("_showRight", true);
+                    this.state.set("_showRight", true);
                 }
             }
         },
@@ -136,32 +136,32 @@ define([
         moveSliderToIndex: function(itemIndex) {
             var extraMargin = parseInt(this.$('.narrative-slider-graphic').css('margin-right'));
             var movementSize = this.$('.narrative-slide-container').width() + extraMargin;
-            this.view.set("_margin", -(movementSize * itemIndex) +"px");
+            this.state.set("_margin", -(movementSize * itemIndex) +"px");
         },
 
         calculateWidths: function() {
             var slideWidth = this.$('.narrative-slide-container').width();
-            var slideCount = this.view.get("_itemCount");
+            var slideCount = this.state.get("_itemCount");
             var marginRight = this.$('.narrative-slider-graphic').css('margin-right');
             var extraMargin = marginRight === '' ? 0 : parseInt(marginRight);
             var fullSlideWidth = (slideWidth + extraMargin) * slideCount;
             var iconWidth = this.$('.narrative-popup-open').outerWidth();
 
-            this.view.set("_slideWidth", slideWidth+"px");
-            this.view.set("_fullSlideWidth", fullSlideWidth+"px");
+            this.state.set("_slideWidth", slideWidth+"px");
+            this.state.set("_fullSlideWidth", fullSlideWidth+"px");
 
-            var stage = this.view.get("_stage");
+            var stage = this.state.get("_stage");
             var margin = -(stage * slideWidth);
 
-            this.view.set("_margin", margin+"px");
-            this.view.set("_finalItemLeft", fullSlideWidth - slideWidth);
+            this.state.set("_margin", margin+"px");
+            this.state.set("_finalItemLeft", fullSlideWidth - slideWidth);
         },
 
         replaceInstructions: function() {
             if (Adapt.device.screenSize === 'large') {
-                this.view.set("instruction", this.model.get('instruction'));
+                this.state.set("instruction", this.model.get('instruction'));
             } else if (this.model.get('mobileInstruction') && !this.model.get('_wasHotgraphic')) {
-                this.view.set("instruction", this.model.get('mobileInstruction'));
+                this.state.set("instruction", this.model.get('mobileInstruction'));
             }
         },
 
@@ -259,7 +259,7 @@ define([
                 var indicatorWidth = this.$('.narrative-indicators').width();
                 var marginLeft = indicatorWidth / 2;
                 
-                this.view.set("_indicatorsMarginLeft", '-' + marginLeft + 'px');
+                this.state.set("_indicatorsMarginLeft", '-' + marginLeft + 'px');
             }
         },
 
@@ -271,7 +271,7 @@ define([
 
         openPopup: function(event) {
             event.preventDefault();
-            var currentItem = this.getCurrentItem(this.view.get("_stage"));
+            var currentItem = this.getCurrentItem(this.state.get("_stage"));
             var popupObject = {
                 title: currentItem.title,
                 body: currentItem.body
@@ -286,10 +286,10 @@ define([
         onNavigationClicked: function(event) {
             event.preventDefault();
 
-            if (!this.view.get("_active")) return;
+            if (!this.state.get("_active")) return;
 
-            var stage = this.view.get("_stage");
-            var numberOfItems = this.view.get("_itemCount");
+            var stage = this.state.get("_stage");
+            var numberOfItems = this.state.get("_itemCount");
 
             if ($(event.currentTarget).hasClass('narrative-control-right')) {
                 stage++;
