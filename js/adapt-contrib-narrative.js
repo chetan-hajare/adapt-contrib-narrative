@@ -5,6 +5,24 @@ define([
 
     var Narrative = ComponentViewDifferential.extend({
 
+        redrawOn: [
+            "_isDesktop",
+            "_hasNavigationInTextArea",
+            "displayTitle",
+            "body",
+            "title",
+            "_stage",
+            "_items",
+            "_slideWidth",
+            "_fullSlideWidth",
+            "_marginDir",
+            "strapline",
+            "_graphic",
+            "_isComplete"
+        ],
+
+        redrawDebug: true,
+
         preRender: function() {
             this.checkIfResetOnRevisit();
             this.setDeviceSize();
@@ -210,7 +228,6 @@ define([
             this.replaceInstructions();
             this.calculateWidths();
             this.evaluateNavigation();
-            this.redraw();
         },
 
         closeNotify: function() {
